@@ -14,3 +14,5 @@
 __MACOSX/
 .vscode/
 .idea/
+
+/plans/
