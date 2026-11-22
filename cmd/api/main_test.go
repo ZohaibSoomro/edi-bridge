@@ -43,7 +43,7 @@ func TestHealthAndParseEndpoints(t *testing.T) {
 	// 3. Valid parse check with test Bearer token
 	reqOK := httptest.NewRequest(http.MethodPost, "/v1/parse", bytes.NewReader(sample850Body()))
 	reqOK.Header.Set("Content-Type", "application/json")
-	reqOK.Header.Set("Authorization", "Bearer edix_live_test_zohaib_001")
+	reqOK.Header.Set("Authorization", "Bearer edix_live_test_001")
 	recOK := httptest.NewRecorder()
 	handler.ServeHTTP(recOK, reqOK)
 	if recOK.Code != http.StatusOK {
@@ -59,7 +59,7 @@ func TestQuotaExhaustionAfter25Requests(t *testing.T) {
 	for i := 1; i <= 25; i++ {
 		req := httptest.NewRequest(http.MethodPost, "/v1/parse", bytes.NewReader(rawBody))
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", "Bearer edix_live_test_zohaib_001")
+		req.Header.Set("Authorization", "Bearer edix_live_test_001")
 
 		rec := httptest.NewRecorder()
 		handler.ServeHTTP(rec, req)
@@ -77,7 +77,7 @@ func TestQuotaExhaustionAfter25Requests(t *testing.T) {
 	// 26th request should be blocked with 429 Too Many Requests
 	req26 := httptest.NewRequest(http.MethodPost, "/v1/parse", bytes.NewReader(rawBody))
 	req26.Header.Set("Content-Type", "application/json")
-	req26.Header.Set("Authorization", "Bearer edix_live_test_zohaib_001")
+	req26.Header.Set("Authorization", "Bearer edix_live_test_001")
 
 	rec26 := httptest.NewRecorder()
 	handler.ServeHTTP(rec26, req26)

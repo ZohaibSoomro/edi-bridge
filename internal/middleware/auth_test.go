@@ -9,7 +9,7 @@ import (
 func TestMemoryKeyStoreQuotaAndExhaustion(t *testing.T) {
 	store := NewMemoryKeyStore([]*KeyRecord{
 		{
-			Key:          "edix_live_test_zohaib_001",
+			Key:          "edix_live_test_001",
 			TenantID:     "tenant_demo",
 			Plan:         "starter",
 			MonthlyLimit: 25,
@@ -27,7 +27,7 @@ func TestMemoryKeyStoreQuotaAndExhaustion(t *testing.T) {
 	})
 
 	// 24th request (remaining should drop from 2 -> 1)
-	rec1, err := store.ValidateAndConsume("edix_live_test_zohaib_001")
+	rec1, err := store.ValidateAndConsume("edix_live_test_001")
 	if err != nil || rec1 == nil {
 		t.Fatalf("expected 24th request to succeed, got rec=%+v err=%v", rec1, err)
 	}
@@ -36,7 +36,7 @@ func TestMemoryKeyStoreQuotaAndExhaustion(t *testing.T) {
 	}
 
 	// 25th request (remaining should drop from 1 -> 0)
-	rec2, err := store.ValidateAndConsume("edix_live_test_zohaib_001")
+	rec2, err := store.ValidateAndConsume("edix_live_test_001")
 	if err != nil || rec2 == nil {
 		t.Fatalf("expected 25th request to succeed, got rec=%+v err=%v", rec2, err)
 	}
@@ -45,7 +45,7 @@ func TestMemoryKeyStoreQuotaAndExhaustion(t *testing.T) {
 	}
 
 	// 26th request should hit ErrQuotaExceeded and not increment past 25
-	rec3, err := store.ValidateAndConsume("edix_live_test_zohaib_001")
+	rec3, err := store.ValidateAndConsume("edix_live_test_001")
 	if err != ErrQuotaExceeded {
 		t.Fatalf("expected ErrQuotaExceeded on 26th request, got rec=%+v err=%v", rec3, err)
 	}
@@ -63,7 +63,7 @@ func TestMemoryKeyStoreQuotaAndExhaustion(t *testing.T) {
 func TestDualAuthBearerQuotaHeadersAnd429(t *testing.T) {
 	store := NewMemoryKeyStore([]*KeyRecord{
 		{
-			Key:          "edix_live_test_zohaib_001",
+			Key:          "edix_live_test_001",
 			TenantID:     "tenant_demo",
 			Plan:         "starter",
 			MonthlyLimit: 25,
@@ -85,7 +85,7 @@ func TestDualAuthBearerQuotaHeadersAnd429(t *testing.T) {
 
 	// 25th call succeeds and reports remaining=0
 	req1 := httptest.NewRequest(http.MethodPost, "/v1/parse", nil)
-	req1.Header.Set("Authorization", "Bearer edix_live_test_zohaib_001")
+	req1.Header.Set("Authorization", "Bearer edix_live_test_001")
 	rec1 := httptest.NewRecorder()
 	okHandler.ServeHTTP(rec1, req1)
 
@@ -101,7 +101,7 @@ func TestDualAuthBearerQuotaHeadersAnd429(t *testing.T) {
 
 	// 26th call returns 429 Too Many Requests with remaining=0
 	req2 := httptest.NewRequest(http.MethodPost, "/v1/parse", nil)
-	req2.Header.Set("Authorization", "Bearer edix_live_test_zohaib_001")
+	req2.Header.Set("Authorization", "Bearer edix_live_test_001")
 	rec2 := httptest.NewRecorder()
 	okHandler.ServeHTTP(rec2, req2)
 

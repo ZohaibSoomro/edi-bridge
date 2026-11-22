@@ -89,12 +89,12 @@
       <div class="grid sm:grid-cols-3 gap-3 my-4">
         <div>
           <label class="block text-xs text-slate-600 dark:text-slate-400 mb-1">API Base URL</label>
-          <input id="apiUrl" type="text" value="https://edi-bridge-api.azurewebsites.net"
+          <input id="apiUrl" type="text" value="http://localhost:8080"
             class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-200 focus:outline-none focus:border-emerald-500" />
         </div>
         <div>
           <label class="block text-xs text-slate-600 dark:text-slate-400 mb-1">SaaS Bearer API Key</label>
-          <input id="apiKey" type="text" value="edix_live_test_zohaib_001"
+          <input id="apiKey" type="text" value="edix_live_test_001"
             class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-emerald-700 dark:text-emerald-400 focus:outline-none focus:border-emerald-500" />
         </div>
         <div class="flex items-end justify-between gap-3">
@@ -425,7 +425,7 @@
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
       <h3 class="text-base font-bold text-slate-950 dark:text-white mb-3">Quickstart cURL</h3>
       <pre
-        class="bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-4 font-mono text-xs text-slate-800 dark:text-slate-300 overflow-x-auto">curl -X POST https://your-api.azurewebsites.net/v1/parse \
+        class="bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-4 font-mono text-xs text-slate-800 dark:text-slate-300 overflow-x-auto">curl -X POST https://api.yourdomain.com/v1/parse \
   -H "Authorization: Bearer edix_live_your_key" \
   -H "Content-Type: application/json" \
   -d '{"generate_997": true, "payload": "ISA*00*..."}'</pre>
