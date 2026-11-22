@@ -1,0 +1,16 @@
+# Binaries & build output
+/bin/
+/edi-bridge
+*.exe
+*.test
+*.out
+
+# Environment & local secrets
+.env
+.env.*
+
+# macOS & IDE
+.DS_Store
+__MACOSX/
+.vscode/
+.idea/

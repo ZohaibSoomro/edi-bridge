@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EDI-Bridge — B2B X12 EDI-to-JSON API &amp; Validator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
+</head>
+
+<body
+  class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen font-sans antialiased transition-colors duration-200">
+  <!-- Navbar -->
+  <header
+    class="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/70 backdrop-blur sticky top-0 z-20 transition-colors">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-2.5">
+        <span
+          class="px-2.5 py-1 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-mono text-xs font-bold border border-emerald-500/30">X12</span>
+        <span class="font-bold text-lg tracking-tight">EDI-Bridge</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <nav class="hidden sm:flex items-center gap-6 text-sm text-slate-600 dark:text-slate-300">
+          <a href="#playground" class="hover:text-slate-950 dark:hover:text-white transition">Playground</a>
+          <a href="#supported-docs" class="hover:text-slate-950 dark:hover:text-white transition">Supported Docs</a>
+          <a href="#pricing" class="hover:text-slate-950 dark:hover:text-white transition">Pricing</a>
+          <a href="#quickstart" class="hover:text-slate-950 dark:hover:text-white transition">API Docs</a>
+        </nav>
+        <button id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle light or dark mode"
+          class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5 cursor-pointer">
+          <span id="themeIcon">☀️</span>
+          <span id="themeLabel">Light Mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="max-w-6xl mx-auto px-6 pt-12 pb-8">
+    <div class="max-w-3xl">
+      <span
+        class="inline-block text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full mb-4">
+        850 • 855 • 810 • 214 • Automated 997
+      </span>
+      <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-950 dark:text-white leading-tight">
+        Normalize B2B X12 EDI into clean JSON in sub-millisecond latency.
+      </h1>
+      <p class="mt-4 text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
+        Parse multi-group X12 interchanges, audit ISA/GS/ST control numbers, and synthesize compliant 997 Functional
+        Acknowledgments via a single REST endpoint.
+      </p>
+    </div>
+  </section>
+
+  <!-- Live Playground -->
+  <section id="playground" class="max-w-6xl mx-auto px-6 py-4">
+    <div
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-xl transition-colors">
+      <div
+        class="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h2 class="text-lg font-bold text-slate-950 dark:text-white">Interactive EDI-to-JSON Inspector</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Test live against your Go backend API with
+            real-time quota telemetry.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="loadSample('850')"
+            class="px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-md border border-slate-300 dark:border-slate-700 transition cursor-pointer">Sample
+            850 PO</button>
+          <button onclick="loadSample('810')"
+            class="px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-md border border-slate-300 dark:border-slate-700 transition cursor-pointer">Sample
+            810 Invoice</button>
+          <button onclick="loadSample('batch')"
+            class="px-3 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-md border border-slate-300 dark:border-slate-700 transition cursor-pointer">Sample
+            Multi-Group 850+214</button>
+          <button id="toggleFormatBtn" onclick="toggleEdiFormat()"
+            class="px-3 py-1.5 text-xs font-medium bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-700 dark:text-indigo-300 rounded-md border border-indigo-500/40 transition cursor-pointer">
+            Format EDI
+          </button>
+        </div>
+      </div>
+
+      <!-- Connection & Auth Bar -->
+      <div class="grid sm:grid-cols-3 gap-3 my-4">
+        <div>
+          <label class="block text-xs text-slate-600 dark:text-slate-400 mb-1">API Base URL</label>
+          <input id="apiUrl" type="text" value="http://localhost:8080"
+            class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-200 focus:outline-none focus:border-emerald-500" />
+        </div>
+        <div>
+          <label class="block text-xs text-slate-600 dark:text-slate-400 mb-1">SaaS Bearer API Key</label>
+          <input id="apiKey" type="text" value="edix_live_test_zohaib_001"
+            class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-emerald-700 dark:text-emerald-400 focus:outline-none focus:border-emerald-500" />
+        </div>
+        <div class="flex items-end justify-between gap-3">
+          <label class="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 pb-2.5 cursor-pointer">
+            <input id="gen997" type="checkbox" checked
+              class="rounded bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-emerald-500" />
+            Generate 997 Ack
+          </label>
+          <button onclick="runParse()"
+            class="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs rounded-lg transition shadow-lg shadow-emerald-500/20 cursor-pointer">
+            Parse &amp; Validate →
+          </button>
+        </div>
+      </div>
+
+      <!-- Split Input / Output -->
+      <div class="grid lg:grid-cols-2 gap-4 mt-4 items-stretch">
+        <!-- Input Pane -->
+        <div class="flex flex-col">
+          <div class="flex flex-wrap justify-between items-center gap-2 mb-2 min-h-[30px]">
+            <span class="text-xs font-semibold text-slate-600 dark:text-slate-400">RAW X12 PAYLOAD</span>
+            <div class="flex items-center gap-2">
+              <label
+                class="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded border border-slate-300 dark:border-slate-700 cursor-pointer transition">
+                Upload File
+                <input id="fileUpload" type="file" multiple accept=".edi,.x12,.txt,.dat"
+                  onchange="handleFileUpload(event)" class="hidden" />
+              </label>
+              <button onclick="clearInput()"
+                class="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 rounded border border-slate-300 dark:border-slate-700 transition cursor-pointer">
+                Clear
+              </button>
+              <span id="latencyBadge" class="text-xs font-mono text-slate-500">Ready</span>
+            </div>
+          </div>
+          <textarea id="ediInput" oninput="syncFormatStateFromText()"
+            class="w-full h-[320px] resize-none bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-3.5 font-mono text-xs text-slate-900 dark:text-slate-200 leading-relaxed focus:outline-none focus:border-emerald-500"></textarea>
+        </div>
+
+        <!-- Output Pane -->
+        <div class="flex flex-col">
+          <div class="flex flex-wrap justify-between items-center gap-2 mb-2 min-h-[30px]">
+            <span class="text-xs font-semibold text-slate-600 dark:text-slate-400">NORMALIZED JSON OUTPUT</span>
+            <div class="flex items-center gap-2">
+              <button onclick="copyJson()"
+                class="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-300 rounded border border-slate-300 dark:border-slate-700 transition cursor-pointer">
+                Copy JSON
+              </button>
+              <button onclick="downloadJson()"
+                class="px-2.5 py-1 text-[11px] bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 rounded border border-emerald-500/40 transition cursor-pointer">
+                Download JSON
+              </button>
+              <button id="download997Btn" onclick="download997()"
+                class="hidden px-2.5 py-1 text-[11px] bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-700 dark:text-indigo-300 rounded border border-indigo-500/40 transition cursor-pointer">
+                Download 997
+              </button>
+            </div>
+          </div>
+          <div
+            class="relative w-full h-[320px] bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg flex flex-col overflow-hidden">
+            <div id="statusBar"
+              class="px-3.5 py-2 border-b border-slate-200 dark:border-slate-800/90 bg-slate-100/70 dark:bg-slate-900/60 flex items-center justify-between text-[11px] font-mono text-slate-600 dark:text-slate-400 shrink-0">
+              <span id="summaryText">No response yet</span>
+              <span id="quotaBadge" class="text-emerald-700 dark:text-emerald-400"></span>
+            </div>
+            <pre id="jsonOutput"
+              class="flex-1 w-full overflow-auto p-3.5 font-mono text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed">{ "hint": "Click 'Parse & Validate' to inspect normalized JSON..." }</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Supported Transactions, Capabilities & Instructions -->
+  <section id="supported-docs" class="max-w-6xl mx-auto px-6 pt-10 pb-2">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm transition-colors">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-5 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+            Supported Specs &amp; How-To
+          </span>
+          <h2 class="text-2xl font-bold text-slate-950 dark:text-white mt-1">
+            Supported X12 Transactions, Features &amp; Playground Guide
+          </h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            Reference what transaction sets are parsed, how batch uploads and 997 acknowledgments work, and how to run tests.
+          </p>
+        </div>
+        <span class="text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg self-start sm:self-auto">
+          X12 Envelope &amp; Control Audits
+        </span>
+      </div>
+
+      <!-- Supported Transaction Sets -->
+      <div class="mt-6">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
+          Currently Supported Transaction Sets
+        </h3>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+            <div class="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">X12 850</div>
+            <div class="text-xs font-semibold text-slate-900 dark:text-white mt-1">Purchase Order</div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Header, dates, parties, and line items.</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+            <div class="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">X12 855</div>
+            <div class="text-xs font-semibold text-slate-900 dark:text-white mt-1">PO Acknowledgment</div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Order confirmation &amp; item status details.</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+            <div class="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">X12 810</div>
+            <div class="text-xs font-semibold text-slate-900 dark:text-white mt-1">Invoice</div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Invoice totals, references, and line billing.</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+            <div class="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">X12 214</div>
+            <div class="text-xs font-semibold text-slate-900 dark:text-white mt-1">Shipment Status</div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Carrier tracking, milestones &amp; references.</p>
+          </div>
+          <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+            <div class="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">X12 856</div>
+            <div class="text-xs font-semibold text-slate-900 dark:text-white mt-1">Advance Ship Notice</div>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Hierarchical HL trees (S/O/P/I) &amp; product IDs.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Capabilities & Instructions -->
+      <div class="grid md:grid-cols-2 gap-4 mt-6">
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800">
+          <h3 class="text-sm font-bold text-slate-950 dark:text-white mb-2.5">Key Platform &amp; Parser Features</h3>
+          <ul class="space-y-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
+              <span><strong>Multi-Group Interchanges:</strong> Parses multiple <code class="font-mono">GS</code>/<code class="font-mono">ST</code> sets within a single payload and reports envelope/count validation errors.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
+              <span><strong>997 Functional Acknowledgments:</strong> Generates per-group <code class="font-mono">AK1</code>–<code class="font-mono">AK9</code> acknowledgments with unique control numbers and echoes inbound <code class="font-mono">ISA15</code> (<code class="font-mono">P</code> or <code class="font-mono">T</code>).</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
+              <span><strong>Batch File Processing:</strong> Upload multiple <code class="font-mono">.edi</code>, <code class="font-mono">.x12</code>, <code class="font-mono">.txt</code>, or <code class="font-mono">.dat</code> files at once to get combined JSON output and all generated 997s together.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
+              <span><strong>Inspector &amp; Theme Controls:</strong> Switch between streamed and line-formatted EDI, copy or download JSON/997 files, inspect live latency and quota headers, and toggle Light or Dark mode.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800">
+          <h3 class="text-sm font-bold text-slate-950 dark:text-white mb-2.5">How to Use the Playground</h3>
+          <ol class="space-y-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed list-decimal list-inside">
+            <li><strong>Load or Paste X12 Data:</strong> Click a sample button (850, 810, or Multi-Group 850+214), paste raw X12 segments, or use <strong>Format EDI</strong> / <strong>Stream EDI</strong> for readability.</li>
+            <li><strong>Toggle 997 Generation:</strong> Keep <strong>Generate 997 Ack</strong> checked to synthesize a matching 997 using the incoming <code class="font-mono">ISA15</code> indicator (<code class="font-mono">P</code> or <code class="font-mono">T</code>) and fresh control numbers.</li>
+            <li><strong>Run Single or Batch Upload:</strong> Click <strong>Parse &amp; Validate →</strong> for the current editor payload, or click <strong>Upload File</strong> and select one or multiple EDI files to parse in parallel.</li>
+            <li><strong>Export Results:</strong> Use <strong>Copy JSON</strong> or <strong>Download JSON</strong> for normalized output, and click <strong>Download 997</strong> (or <strong>Download 997 (N)</strong> for batches) when 997 output is generated.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Pricing -->
+  <section id="pricing" class="max-w-6xl mx-auto px-6 py-14">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+      <div>
+        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Plans &amp;
+          Quotas</span>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-950 dark:text-white mt-1">Simple, Predictable API Pricing
+        </h2>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Start free in sandbox mode, or subscribe via direct
+          SaaS API key or RapidAPI Hub.</p>
+      </div>
+      <span
+        class="text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-lg self-start sm:self-auto">
+        No VAN setup fees • Cancel anytime
+      </span>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
+      <!-- Sandbox -->
+      <div
+        class="group flex flex-col justify-between bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Sandbox</span>
+            <span
+              class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">Testing</span>
+          </div>
+          <div class="mt-4 flex items-baseline gap-1">
+            <span class="text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white tabular-nums">$0</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">/month</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Ideal for validating payloads and prototyping
+            integrations.</p>
+          <ul
+            class="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800/80 space-y-2.5 text-xs text-slate-700 dark:text-slate-300">
+            <li class="flex items-center gap-2"><span
+                class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span><span><strong>250</strong> transactions
+                / month</span></li>
+            <li class="flex items-center gap-2"><span
+                class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span><span>850, 855, 810 &amp; 214
+                parsing</span></li>
+            <li class="flex items-center gap-2"><span
+                class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span><span>Automated 997 generation</span>
+            </li>
+          </ul>
+        </div>
+        <a href="#playground"
+          class="mt-6 block w-full text-center py-2 px-4 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 transition">
+          Try in Playground
+        </a>
+      </div>
+
+      <!-- Starter (Featured) -->
+      <div
+        class="group flex flex-col justify-between bg-gradient-to-b from-emerald-50/70 to-white dark:from-emerald-950/30 dark:to-slate-900 border-2 border-emerald-500/70 dark:border-emerald-500/60 rounded-2xl p-6 shadow-md shadow-emerald-500/5 dark:shadow-emerald-500/10 relative transition-all">
+        <span
+          class="absolute -top-3 right-4 bg-emerald-500 text-slate-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wide shadow-sm">
+          Most Popular
+        </span>
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold text-emerald-800 dark:text-emerald-300">Starter</span>
+            <span
+              class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">Production</span>
+          </div>
+          <div class="mt-4 flex items-baseline gap-1">
+            <span class="text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white tabular-nums">$19</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">/month</span>
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2">Built for growing suppliers and automated order
+            pipelines.</p>
+          <ul
+            class="mt-5 pt-5 border-t border-emerald-200/70 dark:border-emerald-800/40 space-y-2.5 text-xs text-slate-800 dark:text-slate-200">
+            <li class="flex items-center gap-2"><span
+                class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span><span><strong>5,000</strong>
+                transactions / month</span></li>
+            <li class="flex items-center gap-2"><span
+                class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span><span>Multi-group batch
+                interchanges</span></li>
+            <li class="flex items-center gap-2"><span
+                class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span><span>Envelope &amp; control number
+                audits</span></li>
+          </ul>
+        </div>
+        <a href="#quickstart"
+          class="mt-6 block w-full text-center py-2 px-4 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-sm transition">
+          Get Starter Key
+        </a>
+      </div>
+
+      <!-- Growth -->
+      <div
+        class="group flex flex-col justify-between bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Growth</span>
+            <span
+              class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">Multi-Partner</span>
+          </div>
+          <div class="mt-4 flex items-baseline gap-1">
+            <span class="text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white tabular-nums">$49</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">/month</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">For high-volume retail, 3PL, and carrier workflows.
+          </p>
+          <ul
+            class="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800/80 space-y-2.5 text-xs text-slate-700 dark:text-slate-300">
+            <li class="flex items-center gap-2"><span
+                class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span><span><strong>25,000</strong>
+                transactions / month</span></li>
+            <li class="flex items-center gap-2"><span
+                class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span><span>Priority API throughput</span>
+            </li>
+            <li class="flex items-center gap-2"><span
+                class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span><span>Validation error alerting
+                hooks</span></li>
+          </ul>
+        </div>
+        <a href="#quickstart"
+          class="mt-6 block w-full text-center py-2 px-4 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 transition">
+          Choose Growth
+        </a>
+      </div>
+
+      <!-- Scale -->
+      <div
+        class="group flex flex-col justify-between bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Scale</span>
+            <span
+              class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-700 dark:text-indigo-300">Enterprise</span>
+          </div>
+          <div class="mt-4 flex items-baseline gap-1">
+            <span class="text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white tabular-nums">$129</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">/month</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">For heavy continuous batch traffic and custom
+            mapping rules.</p>
+          <ul
+            class="mt-5 pt-5 border-t border-slate-100 dark:border-slate-800/80 space-y-2.5 text-xs text-slate-700 dark:text-slate-300">
+            <li class="flex items-center gap-2"><span
+                class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span><span><strong>100,000</strong>
+                transactions / month</span></li>
+            <li class="flex items-center gap-2"><span
+                class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span><span>Dedicated SLA &amp; custom
+                rules</span></li>
+            <li class="flex items-center gap-2"><span
+                class="text-emerald-600 dark:text-emerald-400 font-bold">✓</span><span>Direct engineering support</span>
+            </li>
+          </ul>
+        </div>
+        <a href="#quickstart"
+          class="mt-6 block w-full text-center py-2 px-4 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 transition">
+          Get Scale Plan
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quickstart -->
+  <section id="quickstart" class="max-w-6xl mx-auto px-6 pb-20">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+      <h3 class="text-base font-bold text-slate-950 dark:text-white mb-3">Quickstart cURL</h3>
+      <pre
+        class="bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg p-4 font-mono text-xs text-slate-800 dark:text-slate-300 overflow-x-auto">curl -X POST https://your-api.azurewebsites.net/v1/parse \
+  -H "Authorization: Bearer edix_live_your_key" \
+  -H "Content-Type: application/json" \
+  -d '{"generate_997": true, "payload": "ISA*00*..."}'</pre>
+    </div>
+  </section>
+
+  <!-- Snackbar Toast -->
+  <div id="snackbar" role="status" aria-live="polite"
+    class="fixed bottom-6 right-6 z-50 pointer-events-none opacity-0 translate-y-3 transition-all duration-200 px-4 py-2.5 rounded-lg shadow-xl border text-xs font-medium flex items-center gap-2 bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950 border-slate-700 dark:border-slate-300">
+    <span id="snackbarIcon">✓</span>
+    <span id="snackbarMsg">JSON copied to clipboard</span>
+  </div>
+
+  <script>
+    const SAMPLES = {
+      '850': "ISA*00*          *00*          *ZZ*SENDER123      *ZZ*RECEIVER456    *261122*0245*U*00401*000000101*0*P*:~GS*PO*SENDER123*RECEIVER456*20261122*0245*101*X*004010~ST*850*0001~BEG*00*NE*PO-998877**20261122~DTM*002*20261128~N1*ST*Acme Warehouse*92*WH01~N3*120 Industrial Pkwy~N4*Austin*TX*78701*US~PO1*1*50*EA*24.50**VP*SKU-1001*UP*012345678905~PID*F****Wireless Barcode Scanner~CTT*1~SE*10*0001~GE*1*101~IEA*1*000000101~",
+      '810': "ISA*00*          *00*          *01*987654321      *01*123456789      *261122*0400*U*00401*000000303*0*P*:~GS*IN*987654321*123456789*20261122*0400*303*X*004010~ST*810*0001~BIG*20261122*INV-7741*20261120*PO-998877~N1*RE*Apex Supply Co*92*SUP09~IT1*1*50*EA*24.50**VP*SKU-1001~TDS*122500~CTT*1~SE*7*0001~GE*1*303~IEA*1*000000303~",
+      '856': "ISA*00*          *00*          *01*054945         *ZZ*PROTOOLS       *261122*0400*U*00401*000000404*0*P*:~GS*SH*054945*PROTOOLS*20261122*0400*404*X*004010~ST*856*0001~BSN*00*ASN-778899*20261122*0400~HL*1**S~TD5**2*FEDX*M*PRIORITY OVERNIGHT~REF*BM*BOL-99001~DTM*011*20261122~N1*SF*ProTools Mfg*92*PT01~HL*2*1*O~PRF*PO-55001***20261122~HL*3*2*P~MAN*GM*00012345678901234567~HL*4*3*I~LIN**UP*012345678905*VP*SKU-1001~SN1**50*EA~PID*F****Laser Distance Meter~SE*14*0001~GE*1*404~IEA*1*000000404~",
+      'batch': "ISA*00*          *00*          *01*123456789      *01*987654321      *261122*0310*U*00401*000000202*0*P*:~GS*PO*123456789*987654321*20261122*0310*202*X*004010~ST*850*0001~BEG*00*NE*PO-55001**20261122~PO1*1*100*CA*12.75**VP*ITEM-99~CTT*1~SE*5*0001~GE*1*202~GS*QM*123456789*987654321*20261122*0310*203*X*004010~ST*214*0002~B10*PRO-884422*SHP-9001*ABCD~L11*PO-55001*PO~AT7*X6*NS***20261122*0255*CT~SE*5*0002~GE*1*203~IEA*2*000000202~"
+    };
+
+    let isFormatted = false;
+    let lastJsonText = "";
+    let lastAck997 = "";
+    let snackbarTimer = null;
+    let batch997List = [];
+    let lastParsedResponse = null;
+
+    function applyTheme(theme) {
+      const html = document.documentElement;
+      const icon = document.getElementById('themeIcon');
+      const label = document.getElementById('themeLabel');
+      if (theme === 'light') {
+        html.classList.remove('dark');
+        icon.textContent = '🌙';
+        label.textContent = 'Dark Mode';
+      } else {
+        html.classList.add('dark');
+        icon.textContent = '☀️';
+        label.textContent = 'Light Mode';
+      }
+      localStorage.setItem('edibridge_theme', theme);
+    }
+
+    function toggleTheme() {
+      const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+      applyTheme(next);
+    }
+
+    function showSnackbar(message, icon = '✓') {
+      const bar = document.getElementById('snackbar');
+      document.getElementById('snackbarIcon').textContent = icon;
+      document.getElementById('snackbarMsg').textContent = message;
+
+      bar.classList.remove('opacity-0', 'translate-y-3', 'pointer-events-none');
+      bar.classList.add('opacity-100', 'translate-y-0');
+
+      if (snackbarTimer) clearTimeout(snackbarTimer);
+      snackbarTimer = setTimeout(() => {
+        bar.classList.remove('opacity-100', 'translate-y-0');
+        bar.classList.add('opacity-0', 'translate-y-3', 'pointer-events-none');
+      }, 2500);
+    }
+
+    function detectSegmentTerminator(raw) {
+      const isaIdx = raw.indexOf('ISA');
+      if (isaIdx !== -1 && raw.length >= isaIdx + 106) {
+        const candidate = raw[isaIdx + 105];
+        if (candidate && candidate !== '\n' && candidate !== '\r') {
+          return candidate;
+        }
+      }
+      return '~';
+    }
+
+    function updateFormatButtonLabel() {
+      const btn = document.getElementById('toggleFormatBtn');
+      btn.textContent = isFormatted ? 'Stream EDI' : 'Format EDI';
+    }
+
+    function syncFormatStateFromText() {
+      const val = document.getElementById('ediInput').value;
+      isFormatted = val.includes('\n');
+      updateFormatButtonLabel();
+    }
+
+    function toggleEdiFormat() {
+      const ta = document.getElementById('ediInput');
+      const raw = ta.value.trim();
+      if (!raw) return;
+
+      const isaIdx = raw.indexOf('ISA');
+      let term = '~';
+      if (isaIdx !== -1 && raw.length >= isaIdx + 106) {
+        const candidate = raw[isaIdx + 105];
+        if (candidate) term = candidate;
+      }
+
+      if (!isFormatted) {
+        if (term === '\n' || term === '\r') {
+          const lines = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+          ta.value = lines.join('\n');
+        } else {
+          const compact = raw.replace(/\r?\n/g, '');
+          const segments = compact.split(term).map(s => s.trim()).filter(Boolean);
+          ta.value = segments.map(seg => seg + term).join('\n');
+        }
+        isFormatted = true;
+      } else {
+        if (term === '\n' || term === '\r') {
+          ta.value = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean).join('\n');
+        } else {
+          ta.value = raw.replace(/\r?\n/g, '');
+        }
+        isFormatted = false;
+      }
+      updateFormatButtonLabel();
+    }
+
+    function loadSample(key) {
+      document.getElementById('ediInput').value = SAMPLES[key];
+      isFormatted = false;
+      updateFormatButtonLabel();
+    }
+
+    function clearInput() {
+      document.getElementById('ediInput').value = '';
+      isFormatted = false;
+      updateFormatButtonLabel();
+    }
+
+
+    async function handleFileUpload(event) {
+      const files = Array.from(event.target.files || []);
+      if (!files.length) return;
+
+      const contents = await Promise.all(
+        files.map(async (file) => ({
+          name: file.name,
+          text: (await file.text()).trim()
+        }))
+      );
+
+      const ta = document.getElementById('ediInput');
+      ta.value = contents.map(f => f.text).filter(Boolean).join('\n\n');
+      isFormatted = false;
+      syncFormatStateFromText();
+
+      if (files.length === 1) {
+        showSnackbar(`Loaded ${files[0].name}`);
+        await runParse();
+      } else {
+        showSnackbar(`Loaded ${files.length} EDI files — parsing batch...`);
+        await parseMultipleFiles(contents);
+      }
+
+      event.target.value = '';
+    }
+
+    async function parseMultipleFiles(files) {
+      const baseUrl = document.getElementById('apiUrl').value.trim().replace(/\/+$/, '');
+      const apiKey = document.getElementById('apiKey').value.trim();
+      const gen997 = document.getElementById('gen997').checked;
+      const start = performance.now();
+
+      batch997List = [];
+      lastParsedResponse = null;
+      lastAck997 = '';
+
+      const results = [];
+      let okCount = 0;
+      let errCount = 0;
+
+      await Promise.all(
+        files.map(async (file, idx) => {
+          try {
+            const res = await fetch(`${baseUrl}/v1/parse`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                ...(apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {})
+              },
+              body: JSON.stringify({ payload: file.text, generate_997: gen997 })
+            });
+            const data = await res.json();
+            if (!res.ok || data.success === false) {
+              errCount++;
+              results[idx] = { file: file.name, status: res.status, success: false, error: data.error || 'Parse failed' };
+              return;
+            }
+            okCount++;
+            if (data.ack_997) {
+              batch997List.push(data.ack_997.trim());
+            }
+            results[idx] = { file: file.name, status: res.status, ...data };
+          } catch (err) {
+            errCount++;
+            results[idx] = { file: file.name, success: false, error: err.message };
+          }
+        })
+      );
+
+      const elapsed = (performance.now() - start).toFixed(1);
+      document.getElementById('latencyBadge').textContent = `${files.length} files • ${elapsed} ms`;
+
+      const batchOutput = {
+        success: errCount === 0,
+        batch_summary: {
+          total_files: files.length,
+          succeeded: okCount,
+          failed: errCount,
+          generated_997_count: batch997List.length
+        },
+        results
+      };
+
+      lastParsedResponse = batchOutput;
+      lastJsonText = JSON.stringify(batchOutput, null, 2);
+      document.getElementById('jsonOutput').textContent = lastJsonText;
+
+      const sumEl = document.getElementById('summaryText');
+      sumEl.textContent = `Batch: ${okCount}/${files.length} OK | Errors: ${errCount} | 997s: ${batch997List.length}`;
+      sumEl.className = errCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400';
+
+      const dl997Btn = document.getElementById('download997Btn');
+      if (batch997List.length > 0) {
+        dl997Btn.classList.remove('hidden');
+        dl997Btn.textContent = `Download 997 (${batch997List.length})`;
+      } else {
+        dl997Btn.classList.add('hidden');
+        dl997Btn.textContent = 'Download 997';
+      }
+    }
+
+    function triggerDownload(filename, content, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadJson() {
+      const text = (lastJsonText || document.getElementById('jsonOutput').textContent || '').trim();
+      if (!text) {
+        showSnackbar('No JSON available to download', '!');
+        return;
+      }
+      const filename = batch997List.length > 1 ? 'edi-bridge-batch.json' : 'edi-bridge-normalized.json';
+      triggerDownload(filename, text, 'application/json');
+      showSnackbar('JSON downloaded');
+    }
+
+    async function copyJson() {
+      const text = (lastJsonText || '').trim();
+      if (!text) {
+        showSnackbar('Parse an EDI payload first to generate JSON', '!');
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        showSnackbar('JSON copied to clipboard');
+      } catch {
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        showSnackbar('JSON copied to clipboard');
+      }
+    }
+
+    function download997() {
+      const content = batch997List.length > 0
+        ? batch997List.join('\n')
+        : (lastParsedResponse && lastParsedResponse.ack_997 ? lastParsedResponse.ack_997 : lastAck997);
+      if (!content) {
+        showSnackbar('No 997 acknowledgment available', '!');
+        return;
+      }
+      const filename = batch997List.length > 1 ? 'edi-bridge-batch-997.x12' : 'edi-bridge-997.x12';
+      triggerDownload(filename, content, 'text/plain');
+      showSnackbar(batch997List.length > 1 ? `Downloaded ${batch997List.length} 997s` : '997 downloaded');
+    }
+
+
+    async function runParse() {
+
+      const baseUrl = document.getElementById('apiUrl').value.replace(/\/$/, '');
+      const apiKey = document.getElementById('apiKey').value.trim();
+      const payload = document.getElementById('ediInput').value;
+      const generate997 = document.getElementById('gen997').checked;
+      const outEl = document.getElementById('jsonOutput');
+      const latEl = document.getElementById('latencyBadge');
+      const quotaEl = document.getElementById('quotaBadge');
+      const sumEl = document.getElementById('summaryText');
+      const ackBtn = document.getElementById('download997Btn');
+      batch997List = [];
+      lastParsedResponse = null;
+      ackBtn.textContent = 'Download 997';
+
+      const t0 = performance.now();
+      try {
+        const res = await fetch(`${baseUrl}/v1/parse`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({ payload, generate_997: generate997 })
+        });
+        const ms = (performance.now() - t0).toFixed(1);
+        latEl.textContent = `${res.status} • ${ms} ms`;
+
+        const rem = res.headers.get('X-RateLimit-Remaining');
+        const lim = res.headers.get('X-RateLimit-Limit');
+        if (rem && lim) quotaEl.textContent = `Quota: ${rem} / ${lim}`;
+
+        const data = await res.json();
+        lastJsonText = JSON.stringify(data, null, 2);
+        lastAck997 = data.ack_997 || "";
+        lastParsedResponse = data;
+        ackBtn.classList.toggle('hidden', !lastAck997);
+
+        const txCount = data.transaction_count ?? 0;
+        const errCount = Array.isArray(data.validation_errors) ? data.validation_errors.length : 0;
+        sumEl.textContent = `Transactions: ${txCount} | Errors: ${errCount}${lastAck997 ? ' | 997 Ready' : ''}`;
+        sumEl.className = errCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400';
+
+        outEl.textContent = lastJsonText;
+      } catch (err) {
+        latEl.textContent = 'Error';
+        sumEl.textContent = 'Request failed';
+        sumEl.className = 'text-rose-600 dark:text-rose-400';
+        lastJsonText = "";
+        lastAck997 = "";
+        ackBtn.classList.add('hidden');
+        outEl.textContent = JSON.stringify({ error: err.message, hint: 'Ensure go run ./cmd/api is running on port 8080' }, null, 2);
+      }
+    }
+
+    const savedTheme = localStorage.getItem('edibridge_theme') || 'dark';
+    applyTheme(savedTheme);
+    loadSample('batch');
+  </script>
+</body>
+
+</html>
