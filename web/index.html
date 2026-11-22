@@ -159,7 +159,7 @@
               class="px-3.5 py-2 border-b border-slate-200 dark:border-slate-800/90 bg-slate-100/70 dark:bg-slate-900/60 flex items-center justify-between text-[11px] font-mono text-slate-600 dark:text-slate-400 shrink-0">
               <span id="summaryText">No response yet</span>
               <span id="quotaBadge" class="text-emerald-700 dark:text-emerald-400"></span>
-<span id="rateHeaders" class="font-mono text-xs text-slate-500 dark:text-slate-400"></span>
+              <span id="rateHeaders" class="font-mono text-xs text-slate-500 dark:text-slate-400"></span>
             </div>
             <pre id="jsonOutput"
               class="flex-1 w-full overflow-auto p-3.5 font-mono text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed">{ "hint": "Click 'Parse & Validate' to inspect normalized JSON..." }</pre>
@@ -171,8 +171,10 @@
 
   <!-- Supported Transactions, Capabilities & Instructions -->
   <section id="supported-docs" class="max-w-6xl mx-auto px-6 pt-10 pb-2">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm transition-colors">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-5 border-b border-slate-200 dark:border-slate-800">
+    <div
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm transition-colors">
+      <div
+        class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-5 border-b border-slate-200 dark:border-slate-800">
         <div>
           <span class="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
             Supported Specs &amp; How-To
@@ -181,10 +183,12 @@
             Supported X12 Transactions, Features &amp; Playground Guide
           </h2>
           <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
-            Reference what transaction sets are parsed, how batch uploads and 997 acknowledgments work, and how to run tests.
+            Reference what transaction sets are parsed, how batch uploads and 997 acknowledgments work, and how to run
+            tests.
           </p>
         </div>
-        <span class="text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg self-start sm:self-auto">
+        <span
+          class="text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg self-start sm:self-auto">
           X12 Envelope &amp; Control Audits
         </span>
       </div>
@@ -203,22 +207,26 @@
           <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
             <div class="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">X12 855</div>
             <div class="text-xs font-semibold text-slate-900 dark:text-white mt-1">PO Acknowledgment</div>
-            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Order confirmation &amp; item status details.</p>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Order confirmation &amp; item status details.
+            </p>
           </div>
           <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
             <div class="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">X12 810</div>
             <div class="text-xs font-semibold text-slate-900 dark:text-white mt-1">Invoice</div>
-            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Invoice totals, references, and line billing.</p>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Invoice totals, references, and line billing.
+            </p>
           </div>
           <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
             <div class="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">X12 214</div>
             <div class="text-xs font-semibold text-slate-900 dark:text-white mt-1">Shipment Status</div>
-            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Carrier tracking, milestones &amp; references.</p>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Carrier tracking, milestones &amp;
+              references.</p>
           </div>
           <div class="p-3.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
             <div class="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">X12 856</div>
             <div class="text-xs font-semibold text-slate-900 dark:text-white mt-1">Advance Ship Notice</div>
-            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Hierarchical HL trees (S/O/P/I) &amp; product IDs.</p>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">Hierarchical HL trees (S/O/P/I) &amp; product
+              IDs.</p>
           </div>
         </div>
       </div>
@@ -230,19 +238,29 @@
           <ul class="space-y-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
             <li class="flex items-start gap-2">
               <span class="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
-              <span><strong>Multi-Group Interchanges:</strong> Parses multiple <code class="font-mono">GS</code>/<code class="font-mono">ST</code> sets within a single payload and reports envelope/count validation errors.</span>
+              <span><strong>Multi-Group Interchanges:</strong> Parses multiple <code class="font-mono">GS</code>/<code
+                  class="font-mono">ST</code> sets within a single payload and reports envelope/count validation
+                errors.</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
-              <span><strong>997 Functional Acknowledgments:</strong> Generates per-group <code class="font-mono">AK1</code>–<code class="font-mono">AK9</code> acknowledgments with unique control numbers and echoes inbound <code class="font-mono">ISA15</code> (<code class="font-mono">P</code> or <code class="font-mono">T</code>).</span>
+              <span><strong>997 Functional Acknowledgments:</strong> Generates per-group <code
+                  class="font-mono">AK1</code>–<code class="font-mono">AK9</code> acknowledgments with unique control
+                numbers and echoes inbound <code class="font-mono">ISA15</code> (<code class="font-mono">P</code> or
+                <code class="font-mono">T</code>).</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
-              <span><strong>Batch File Processing:</strong> Upload multiple <code class="font-mono">.edi</code>, <code class="font-mono">.x12</code>, <code class="font-mono">.txt</code>, or <code class="font-mono">.dat</code> files at once to get combined JSON output and all generated 997s together.</span>
+              <span><strong>Batch File Processing:</strong> Upload multiple <code class="font-mono">.edi</code>, <code
+                  class="font-mono">.x12</code>, <code class="font-mono">.txt</code>, or <code
+                  class="font-mono">.dat</code> files at once to get combined JSON output and all generated 997s
+                together.</span>
             </li>
             <li class="flex items-start gap-2">
               <span class="text-emerald-600 dark:text-emerald-400 font-bold">•</span>
-              <span><strong>Inspector &amp; Theme Controls:</strong> Switch between streamed and line-formatted EDI, copy or download JSON/997 files, inspect live latency and quota headers, and toggle Light or Dark mode.</span>
+              <span><strong>Inspector &amp; Theme Controls:</strong> Switch between streamed and line-formatted EDI,
+                copy or download JSON/997 files, inspect live latency and quota headers, and toggle Light or Dark
+                mode.</span>
             </li>
           </ul>
         </div>
@@ -250,16 +268,23 @@
         <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800">
           <h3 class="text-sm font-bold text-slate-950 dark:text-white mb-2.5">How to Use the Playground</h3>
           <ol class="space-y-2 text-xs text-slate-700 dark:text-slate-300 leading-relaxed list-decimal list-inside">
-            <li><strong>Load or Paste X12 Data:</strong> Click a sample button (850, 810, or Multi-Group 850+214), paste raw X12 segments, or use <strong>Format EDI</strong> / <strong>Stream EDI</strong> for readability.</li>
-            <li><strong>Toggle 997 Generation:</strong> Keep <strong>Generate 997 Ack</strong> checked to synthesize a matching 997 using the incoming <code class="font-mono">ISA15</code> indicator (<code class="font-mono">P</code> or <code class="font-mono">T</code>) and fresh control numbers.</li>
-            <li><strong>Run Single or Batch Upload:</strong> Click <strong>Parse &amp; Validate →</strong> for the current editor payload, or click <strong>Upload File</strong> and select one or multiple EDI files to parse in parallel.</li>
-            <li><strong>Export Results:</strong> Use <strong>Copy JSON</strong> or <strong>Download JSON</strong> for normalized output, and click <strong>Download 997</strong> (or <strong>Download 997 (N)</strong> for batches) when 997 output is generated.</li>
+            <li><strong>Load or Paste X12 Data:</strong> Click a sample button (850, 810, or Multi-Group 850+214), paste
+              raw X12 segments, or use <strong>Format EDI</strong> / <strong>Stream EDI</strong> for readability.</li>
+            <li><strong>Toggle 997 Generation:</strong> Keep <strong>Generate 997 Ack</strong> checked to synthesize a
+              matching 997 using the incoming <code class="font-mono">ISA15</code> indicator (<code
+                class="font-mono">P</code> or <code class="font-mono">T</code>) and fresh control numbers.</li>
+            <li><strong>Run Single or Batch Upload:</strong> Click <strong>Parse &amp; Validate →</strong> for the
+              current editor payload, or click <strong>Upload File</strong> and select one or multiple EDI files to
+              parse in parallel.</li>
+            <li><strong>Export Results:</strong> Use <strong>Copy JSON</strong> or <strong>Download JSON</strong> for
+              normalized output, and click <strong>Download 997</strong> (or <strong>Download 997 (N)</strong> for
+              batches) when 997 output is generated.</li>
           </ol>
         </div>
       </div>
     </div>
   </section>
-  
+
   <!-- Pricing -->
   <section id="pricing" class="max-w-6xl mx-auto px-6 py-14">
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
@@ -719,7 +744,7 @@
 
     async function runParse() {
 
-      const baseUrl = document.getElementById('apiUrl').value.replace(/\/$/, '');
+      const baseUrl = document.getElementById('apiUrl').value.trim().replace(/\/+$/, '');
       const apiKey = document.getElementById('apiKey').value.trim();
       const payload = document.getElementById('ediInput').value;
       const generate997 = document.getElementById('gen997').checked;
@@ -730,6 +755,13 @@
       const ackBtn = document.getElementById('download997Btn');
       batch997List = [];
       lastParsedResponse = null;
+
+      const apiUrlEl = document.getElementById('apiUrl');
+      if (apiUrlEl && window.location.protocol.startsWith('http') && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        apiUrlEl.value = window.location.origin;
+      }
+      baseUrl = apiUrlEl
+
       ackBtn.textContent = 'Download 997';
 
       const t0 = performance.now();
@@ -750,7 +782,7 @@
         const rh = document.getElementById('rateHeaders');
         if (rem && lim) {
           quotaEl.textContent = `Quota: ${rem} / ${lim}`;
-          if (rh) rh.textContent = `X-RateLimit-Remaining: ${rem} | X-RateLimit-Limit: ${lim}`;
+          if (rh) rh.textContent = `Quota-Remaining: ${rem} | Quota-Limit: ${lim}`;
         }
 
         const data = await res.json();
@@ -777,14 +809,24 @@
     }
 
     const savedTheme = localStorage.getItem('edibridge_theme') || 'dark';
+    const apiUrlInput = document.getElementById('apiUrl');
+    if (
+      apiUrlInput &&
+      window.location.protocol.startsWith('http') &&
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1'
+    ) {
+      apiUrlInput.value = window.location.origin;
+    }
     applyTheme(savedTheme);
     loadSample('batch');
   </script>
 
-<footer>
-  <p>All rights reserved. Copyright 2026 Zohaib Hassan Soomro.</p>
-  <p>Developer: Zohaib Hassan Soomro | Email: zohaibsoomro006@gmail.com | LinkedIn: https://www.linkedin.com/in/zohaibsoomro</p>
-</footer>
+  <footer>
+    <p>All rights reserved. Copyright 2026 Zohaib Hassan Soomro.</p>
+    <p>Developer: Zohaib Hassan Soomro | Email: zohaibsoomro006@gmail.com | LinkedIn:
+      https://www.linkedin.com/in/zohaibsoomro</p>
+  </footer>
 </body>
 
 </html>
