@@ -159,6 +159,7 @@
               class="px-3.5 py-2 border-b border-slate-200 dark:border-slate-800/90 bg-slate-100/70 dark:bg-slate-900/60 flex items-center justify-between text-[11px] font-mono text-slate-600 dark:text-slate-400 shrink-0">
               <span id="summaryText">No response yet</span>
               <span id="quotaBadge" class="text-emerald-700 dark:text-emerald-400"></span>
+<span id="rateHeaders" class="font-mono text-xs text-slate-500 dark:text-slate-400"></span>
             </div>
             <pre id="jsonOutput"
               class="flex-1 w-full overflow-auto p-3.5 font-mono text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed">{ "hint": "Click 'Parse & Validate' to inspect normalized JSON..." }</pre>
@@ -746,7 +747,11 @@
 
         const rem = res.headers.get('X-RateLimit-Remaining');
         const lim = res.headers.get('X-RateLimit-Limit');
-        if (rem && lim) quotaEl.textContent = `Quota: ${rem} / ${lim}`;
+        const rh = document.getElementById('rateHeaders');
+        if (rem && lim) {
+          quotaEl.textContent = `Quota: ${rem} / ${lim}`;
+          if (rh) rh.textContent = `X-RateLimit-Remaining: ${rem} | X-RateLimit-Limit: ${lim}`;
+        }
 
         const data = await res.json();
         lastJsonText = JSON.stringify(data, null, 2);
@@ -775,6 +780,11 @@
     applyTheme(savedTheme);
     loadSample('batch');
   </script>
+
+<footer>
+  <p>All rights reserved. Copyright 2026 Zohaib Hassan Soomro.</p>
+  <p>Developer: Zohaib Hassan Soomro | Email: zohaibsoomro006@gmail.com | LinkedIn: https://www.linkedin.com/in/zohaibsoomro</p>
+</footer>
 </body>
 
 </html>
