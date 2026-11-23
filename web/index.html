@@ -616,6 +616,11 @@
       const gen997 = document.getElementById('gen997').checked;
       const start = performance.now();
 
+      const apiUrlEl = document.getElementById('apiUrl');
+      if (apiUrlEl && window.location.protocol.startsWith('http') && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        apiUrlEl.value = window.location.origin;
+      }
+
       batch997List = [];
       lastParsedResponse = null;
       lastAck997 = '';
@@ -760,7 +765,6 @@
       if (apiUrlEl && window.location.protocol.startsWith('http') && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
         apiUrlEl.value = window.location.origin;
       }
-      baseUrl = apiUrlEl
 
       ackBtn.textContent = 'Download 997';
 
