@@ -612,10 +612,10 @@
 
     async function parseMultipleFiles(files) {
       
-      const apiUrlEl = document.getElementById('apiUrl');
-      if (apiUrlEl && window.location.protocol.startsWith('http') && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        apiUrlEl.value = window.location.origin;
-      }
+      // const apiUrlEl = document.getElementById('apiUrl');
+      // if (apiUrlEl && window.location.protocol.startsWith('http') && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      //   apiUrlEl.value = window.location.origin;
+      // }
 
       const baseUrl = document.getElementById('apiUrl').value.trim().replace(/\/+$/, '');
       const apiKey = document.getElementById('apiKey').value.trim();
@@ -751,10 +751,10 @@
 
     async function runParse() {
 
-      const apiUrlEl = document.getElementById('apiUrl');
-      if (apiUrlEl && window.location.protocol.startsWith('http') && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-        apiUrlEl.value = window.location.origin;
-      }
+      // const apiUrlEl = document.getElementById('apiUrl');
+      // if (apiUrlEl && window.location.protocol.startsWith('http') && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      //   apiUrlEl.value = window.location.origin;
+      // }
 
       const baseUrl = document.getElementById('apiUrl').value.trim().replace(/\/+$/, '');
       const apiKey = document.getElementById('apiKey').value.trim();
