@@ -787,7 +787,7 @@
         const lim = res.headers.get('X-RateLimit-Limit');
         const rh = document.getElementById('rateHeaders');
         if (rem && lim) {
-          quotaEl.textContent = `Quota: ${rem} / ${lim}`;
+          // quotaEl.textContent = `Quota: ${rem} / ${lim}`;
           if (rh) rh.textContent = `Quota-Remaining: ${rem} | Quota-Limit: ${lim}`;
         }
 
